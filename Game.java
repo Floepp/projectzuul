@@ -1,4 +1,3 @@
-
 /**
  *  This class is the main class of the "World of Zuul" application. 
  *  "World of Zuul" is a very simple, text based adventure game.  Users 
@@ -39,22 +38,28 @@ public class Game
       
         // create the rooms
         groteMarkt = new Room("Welkom op de Grote Markt!");
-        drieGezusters = new Room("Je bent nu in Drie Gezusters.");
-        kokomo = new Room("Je bent nu in Kokomo.");
-        sunnyBeach = new Room("Je bent nu in Sunny Beach.");
-        ocean = new Room("Je bent nu in Ocean 41.");
-        copas = new Room("Je bent nu in Copas.");
+        drieGezusters = new Room(" Drie Gezusters.");
+        kokomo = new Room(" Kokomo.");
+        sunnyBeach = new Room(" Sunny Beach.");
+        ocean = new Room(" Ocean 41.");
+        copas = new Room(" Copas.");
         
         // initialise room exits
-        groteMarkt.setExits(drieGezusters, kokomo, sunnyBeach, null);
-        drieGezusters.setExits(null, null, null, groteMarkt);
-        kokomo.setExits(null, copas, groteMarkt, null);
-        sunnyBeach.setExits(groteMarkt, null, null, null);
-        ocean.setExits(null, null, null, groteMarkt);
-        copas.setExits(null, null, null, kokomo);
+        groteMarkt.setExit("north", drieGezusters);
+        groteMarkt.setExit("east", kokomo);
+        groteMarkt.setExit("south", sunnyBeach);
+        drieGezusters.setExit("west", groteMarkt);
+        drieGezusters.setExit("up", ocean);
+        kokomo.setExit("east", copas);
+        kokomo.setExit("south", groteMarkt);
+        sunnyBeach.setExit("north", groteMarkt);
+        ocean.setExit("west", groteMarkt);
+        ocean.setExit("down", drieGezusters);
+        copas.setExit("west", kokomo);
 
         currentRoom = groteMarkt;  // start game outside
     }
+
 
     /**
      *  Main play routine.  Loops until end of play.
@@ -85,6 +90,14 @@ public class Game
         System.out.println("Type 'help' if you need help.");
         System.out.println();
         printLocationInfo();
+        
+    }
+    
+    private void printLocationInfo() 
+    {
+        System.out.println("Je bent in " + currentRoom.getDescription());
+        System.out.println();
+        System.out.print(currentRoom.getLongDescription()); 
     }
 
     /**
@@ -146,18 +159,18 @@ public class Game
         String direction = command.getSecondWord();
 
         // Try to leave current room.
-        Room nextRoom = null;
+        Room nextRoom = currentRoom.getExit(direction);
         if(direction.equals("north")) {
-            nextRoom = currentRoom.northExit;
+            nextRoom = currentRoom.getExit("north");
         }
         if(direction.equals("east")) {
-            nextRoom = currentRoom.eastExit;
+            nextRoom = currentRoom.getExit("east");
         }
         if(direction.equals("south")) {
-            nextRoom = currentRoom.southExit;
+            nextRoom = currentRoom.getExit("south");
         }
         if(direction.equals("west")) {
-            nextRoom = currentRoom.westExit;
+            nextRoom = currentRoom.getExit("west");
         }
 
         if (nextRoom == null) {
@@ -183,24 +196,5 @@ public class Game
         else {
             return true;  // signal that we want to quit
         }
-    }
-    
-    private void printLocationInfo()
-    {
-        System.out.println("Je bent nu in " + currentRoom.getDescription());
-        System.out.print("Exits: ");
-        if(currentRoom.northExit != null) {
-            System.out.print("north ");
-        }
-        if(currentRoom.eastExit != null) {
-            System.out.print("east ");
-        }
-        if(currentRoom.southExit != null) {
-            System.out.print("south ");
-        }
-        if(currentRoom.westExit != null) {
-            System.out.print("west ");
-        }
-        System.out.println();
     }
 }
